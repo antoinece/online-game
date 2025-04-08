@@ -1,11 +1,8 @@
 #include "game.h"
 
 void Game::Init() {
-  Renderer renderer("hockey");
 
-  PlayerController player(100);
 
-  std::vector<sf::Sprite> sprites;
 
   sf::Texture texture;
   if (!texture.loadFromFile("data/sprites/h2.png")) {
@@ -14,17 +11,16 @@ void Game::Init() {
   sf::Sprite sprite(texture);
   sprite.setPosition(sf::Vector2f (0,0));
 
-  sf::RectangleShape playerShape(sf::Vector2f(20.f, 20.f)); // Taille du carré
+  playerShape.setSize(sf::Vector2f(20.f, 20.f)); // Taille du carré
   playerShape.setFillColor(sf::Color::Red);
-  ;
   sprites.push_back(sprite);
 
   if (!ImGui::SFML::Init(renderer.Window())) {
     std::cerr<<"window creation error";
   }
 
-  bool isOpen = true;
-  sf::Clock deltaClock;
+
+
   Status status = Status::NOT_CONNECTED;
 
   std::vector<std::string> receivedMessages;

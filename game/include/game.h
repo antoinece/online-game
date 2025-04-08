@@ -18,7 +18,6 @@
 
 #include "const.h"
 #include "renderer.h"
-#include "game.h"
 
 enum class Status {
   NOT_CONNECTED,
@@ -30,7 +29,12 @@ class Game{
   void Init();
   void Loop();
  private:
-
+  Renderer renderer = Renderer("hockey");
+  bool isOpen = true;
+  PlayerController player = PlayerController(100);
+  std::vector<sf::Sprite> sprites;
+  sf::Clock deltaClock;
+  sf::RectangleShape playerShape;
 };
 
 #endif //ONLINEGAME_GAME_INCLUDE_GAME_H_
