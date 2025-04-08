@@ -7,5 +7,6 @@ static constexpr short PORT_NUMBER = 4533;
 
 unsigned int kWindowWidth = 1438;
 unsigned int kWindowLength = 616;
-
+float kWindowWidthF = static_cast<float>(kWindowWidth);
+float kWindowLengthF = static_cast<float>(kWindowLength);
 #endif //_CONST_H_

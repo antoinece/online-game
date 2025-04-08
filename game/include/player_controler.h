@@ -2,21 +2,21 @@
 #ifndef PLAYER_CONTROLER_H_
 #define PLAYER_CONTROLER_H_
 
+
 #include <SFML/Graphics.hpp>
-#include <crackitos_physics/physics/include/body.h>
+#include <body.h>
 
-class PlayerController : crackitos_physics::physics::Body  {
+class PlayerController {
  public:
-  PlayerController();
+  PlayerController(float m){move_speed=m;};
 
-  sf::Vector2f position = {0,0};
-  sf::Vector2f velocity = {0,0};
 
-  void Update(float dt);
+  void Update(float dt){body_.Update(dt);};
+  void Move(sf::Vector2f direction){body_.ApplyForce(crackitos_core::math::Vec2f((direction * move_speed).x,(direction * move_speed).y));};
 
  private:
-
-
+  float move_speed = 3;
+  crackitos_physics::physics::Body body_;
 };
 
 

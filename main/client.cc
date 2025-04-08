@@ -6,9 +6,12 @@
 #include <SFML/Network/TcpSocket.hpp>
 #include <SFML/Network/IpAddress.hpp>
 
+#include "player_controler.h"
+
 #include <iostream>
 
 #include "const.h"
+#include "renderer.h"
 
 enum class Status {
   NOT_CONNECTED,
@@ -16,9 +19,12 @@ enum class Status {
 };
 
 int main() {
-  sf::RenderWindow window(sf::VideoMode({kWindowWidth, kWindowLength}), "hockey");
-  window.setFramerateLimit(60);
 
+  Renderer renderer("hockey");
+
+  PlayerController player(2);
+
+  std::vector<sf::Sprite> sprites;
 
   sf::Texture texture;
   if (!texture.loadFromFile("data/sprites/h2.png")) {
@@ -28,8 +34,10 @@ int main() {
   sprite.setPosition(sf::Vector2f (0,0));
 
 
+;
+  sprites.push_back(sprite);
 
-  if (!ImGui::SFML::Init(window)) {
+  if (!ImGui::SFML::Init(renderer.Window())) {
     std::cerr<<"window creation error";
   }
 
@@ -43,28 +51,26 @@ int main() {
   ImGui::SetNextWindowPos({20.0f, 20.0f}, ImGuiCond_Always);
 
   while (isOpen) {
-    while (const std::optional event = window.pollEvent()) {
-      ImGui::SFML::ProcessEvent(window, *event);
+    while (const std::optional event = renderer.Window().pollEvent()) {
+      ImGui::SFML::ProcessEvent(renderer.Window(), *event);
       if (event->is<sf::Event::Closed>()) {
         isOpen = false;
       }
     }
 
-    ImGui::SFML::Update(window, deltaClock.restart());
-    auto [x, y] = window.getSize();
+    player.Update(deltaClock.getElapsedTime().asSeconds());
+
+    ImGui::SFML::Update(renderer.Window(), deltaClock.restart());
+    auto [x, y] = renderer.Window().getSize();
 
     ImGui::Begin("Simple Chat", nullptr, ImGuiWindowFlags_NoTitleBar);
 
     ImGui::End();
-    window.clear();
+    renderer.Clear();
 
-    ImGui::SFML::Render(window);
+    ImGui::SFML::Render(renderer.Window());
 
-
-    window.draw(sprite);
-
-
-    window.display();
+    renderer.Render(sprites);
   }
 
   ImGui::SFML::Shutdown();
