@@ -1,26 +1,6 @@
+#include "game.h"
 
-#include <SFML/Graphics.hpp>
-#include <imgui-SFML.h>
-#include <imgui.h>
-#include <misc/cpp/imgui_stdlib.h>
-#include <SFML/Network/TcpSocket.hpp>
-#include <SFML/Network/IpAddress.hpp>
-
-#include "player_controler.h"
-
-#include <iostream>
-
-#include "const.h"
-#include "renderer.h"
-
-
-enum class Status {
-  NOT_CONNECTED,
-  CONNECTED
-};
-
-int main() {
-
+void Game::Init() {
   Renderer renderer("hockey");
 
   PlayerController player(100);
@@ -29,14 +9,14 @@ int main() {
 
   sf::Texture texture;
   if (!texture.loadFromFile("data/sprites/h2.png")) {
-    return -1; // Vérifie si le fichier est bien chargé
+    std::cerr<<"error while loading data/sprites/h2.png";
   }
   sf::Sprite sprite(texture);
   sprite.setPosition(sf::Vector2f (0,0));
 
   sf::RectangleShape playerShape(sf::Vector2f(20.f, 20.f)); // Taille du carré
   playerShape.setFillColor(sf::Color::Red);
-;
+  ;
   sprites.push_back(sprite);
 
   if (!ImGui::SFML::Init(renderer.Window())) {
@@ -51,7 +31,10 @@ int main() {
 
   ImGui::SetNextWindowSize({300, 100}, ImGuiCond_Always);
   ImGui::SetNextWindowPos({20.0f, 20.0f}, ImGuiCond_Always);
+}
 
+
+void Game::Loop() {
   while (isOpen) {
     while (const std::optional event = renderer.Window().pollEvent()) {
       ImGui::SFML::ProcessEvent(renderer.Window(), *event);
@@ -100,6 +83,4 @@ int main() {
     renderer.Draw(playerShape);
     renderer.Display();
   }
-
-  ImGui::SFML::Shutdown();
 }

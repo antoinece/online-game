@@ -31,7 +31,6 @@ class Renderer {
     for (auto& sprite:sprites) {
       Draw(sprite);
     }
-    Display();
   }
 };
 

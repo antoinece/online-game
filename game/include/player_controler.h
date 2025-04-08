@@ -13,7 +13,9 @@ class PlayerController {
 
   void Update(float dt){body_.Update(dt);};
   void Move(sf::Vector2f direction){body_.ApplyForce(crackitos_core::math::Vec2f((direction * move_speed).x,(direction * move_speed).y));};
-
+  crackitos_core::math::Vec2<float> GetPosition() {
+    return body_.position();
+  }
  private:
   float move_speed = 3;
   crackitos_physics::physics::Body body_;
