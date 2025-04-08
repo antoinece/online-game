@@ -1,10 +1,11 @@
 
-#ifndef MICROMACHINE_GAME_INCLUDE_PLAYER_CONTROLER_H_
-#define MICROMACHINE_GAME_INCLUDE_PLAYER_CONTROLER_H_
+#ifndef PLAYER_CONTROLER_H_
+#define PLAYER_CONTROLER_H_
 
 #include <SFML/Graphics.hpp>
+#include <crackitos_physics/physics/include/body.h>
 
-class PlayerController {
+class PlayerController : crackitos_physics::physics::Body  {
  public:
   PlayerController();
 
@@ -15,8 +16,8 @@ class PlayerController {
 
  private:
 
-  float speed_ = 200.f; // Pixels par seconde
+
 };
 
 
-#endif //MICROMACHINE_GAME_INCLUDE_PLAYER_CONTROLER_H_
+#endif //PLAYER_CONTROLER_H_

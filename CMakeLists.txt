@@ -8,6 +8,7 @@ add_subdirectory(game)
 set(IMGUI_SFML_FIND_SFML OFF)
 set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/externals/imgui/" CACHE STRING "")
 add_subdirectory(externals/imgui-sfml)
+add_subdirectory(externals/Physics_923)
 
 
 
@@ -19,8 +20,8 @@ target_link_libraries(server PRIVATE api)
 
 #client
 add_executable(client main/client.cc)
-target_include_directories(client PRIVATE externals/SFML/include externals/imgui-sfml externals/imgui)
-target_link_libraries(client PRIVATE sfml-network sfml-graphics ImGui-SFML api)
+target_include_directories(client PRIVATE externals/SFML/include externals/imgui-sfml externals/imgui externals/Physics_923)
+target_link_libraries(client PRIVATE sfml-network sfml-graphics ImGui-SFML api crackitos_physics)
 
 if(MSVC)
     target_compile_options(client PRIVATE "/W3" "/WX" "/permissive-")
