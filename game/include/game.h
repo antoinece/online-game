@@ -25,13 +25,15 @@ enum class Status {
 };
 
 class Game{
-  Game(){};
+ public:
+  Game() = default;
   void Init();
   void Loop();
  private:
   Renderer renderer = Renderer("hockey");
+  sf::Sprite sprite_player_;
   bool isOpen = true;
-  PlayerController player = PlayerController(100);
+//  PlayerController player = PlayerController(100);
   std::vector<sf::Sprite> sprites;
   sf::Clock deltaClock;
   sf::RectangleShape playerShape;

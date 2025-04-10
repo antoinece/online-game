@@ -1,5 +1,5 @@
 #include "game.h"
-
+/*
 void Game::Init() {
 
 
@@ -8,12 +8,12 @@ void Game::Init() {
   if (!texture.loadFromFile("data/sprites/h2.png")) {
     std::cerr<<"error while loading data/sprites/h2.png";
   }
-  sf::Sprite sprite(texture);
-  sprite.setPosition(sf::Vector2f (0,0));
+  sprite_player_.setTexture(texture);
+  sprite_player_.setPosition(sf::Vector2f (0, 0));
 
   playerShape.setSize(sf::Vector2f(20.f, 20.f)); // Taille du carré
   playerShape.setFillColor(sf::Color::Red);
-  sprites.push_back(sprite);
+  sprites.push_back(sprite_player_);
 
   if (!ImGui::SFML::Init(renderer.Window())) {
     std::cerr<<"window creation error";
@@ -79,4 +79,4 @@ void Game::Loop() {
     renderer.Draw(playerShape);
     renderer.Display();
   }
-}
+}*/
