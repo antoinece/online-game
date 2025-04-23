@@ -9,16 +9,14 @@
 
 class PlayerController {
  public:
-  PlayerController(float m, crackitos_physics::physics::PhysicsWorld& world)
+  PlayerController(float m, crackitos_physics::physics::PhysicsWorld& world,crackitos_core::math::Vec2f a = {100.f, 200.f})
       : move_speed(m), world_(world) {
 
 
     crackitos_physics::physics::Body playerBody;
-    playerBody.set_position(crackitos_core::math::Vec2f(100.f, 200.f)) ;
-    playerBody.set_mass(1.0f);
+    playerBody.set_position(a) ;
+    playerBody.set_mass(10.0f);
     body_handle_ = world_.CreateBody(playerBody);
-
-    // Vous pouvez également ajouter un collider si nécessaire
 
     crackitos_physics::physics::Collider playerCollider(
         crackitos_core::math::AABB( crackitos_core::math::Vec2f(0.0f, 0.0f), crackitos_core::math::Vec2f(50.0f, 50.0f)),
