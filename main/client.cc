@@ -24,6 +24,7 @@ int main() {
 #include "physics_world.h"
 #include "wall.h"
 #include "ball.h"
+#include "renderer.h"
 
 enum class Status {
   NOT_CONNECTED,
@@ -43,41 +44,10 @@ int main() {
   physics_world_.Initialize(worldBounds, true, crackitos_core::math::Vec2f(0, 0));
 
   Wall wall(physics_world_);
+  wall.WallInit();
 
-// Mur supérieur
-wall.CreateWall(
-      crackitos_core::math::Vec2f(kWindowWidthF / 2.0f, 100.f),
-      crackitos_core::math::Vec2f(kWindowWidthF, 20.f)
-  );
+  Renderer renderer("hockey");
 
-// Mur inférieur
-  wall.CreateWall(
-      crackitos_core::math::Vec2f(kWindowWidthF / 2.0f, kWindowLengthF),
-      crackitos_core::math::Vec2f(kWindowWidthF, 20.f)
-  );
-// Mur gauche
-  wall.CreateWall(
-      crackitos_core::math::Vec2f(0.f, kWindowLengthF / 2.0f),
-      crackitos_core::math::Vec2f(20.f, kWindowLengthF)
-  );
-// Mur droite
-  wall.CreateWall(
-      crackitos_core::math::Vec2f(kWindowWidthF, kWindowLengthF / 2.0f),
-      crackitos_core::math::Vec2f(20.f, kWindowLengthF)
-  );
-//mur cage gauche
-  wall.CreateWall({130.f, 407.f},{5.f, 151.f});//fond
-  wall.CreateWall({155.f, 332.f},{50.f, 5.f});//haut
-  wall.CreateWall({155.f, 483.f}, {50.f, 5.f});//bas
-//mur cage droite
-  wall.CreateWall({kWindowWidthF-132.f, 407.f}, {5.f, 151.f});//fond
-  wall.CreateWall({kWindowWidthF-157.f, 332.f}, {50.f, 5.f});//haut
-  wall.CreateWall({kWindowWidthF-157.f, 483.f}, {50.f, 5.f});//haut
-
-
-
-//  auto leftGoalTriggerHandle = wall.CreateWall({155.f, 407.f},{40.f, 140.f});
-//  auto rightGoalTriggerHandle = wall.CreateWall({kWindowWidthF-157.f, 407.f},{40.f, 140.f});
 
   // Chargement de la texture
   sf::Texture texture_background;
@@ -100,26 +70,9 @@ wall.CreateWall(
   sprite_cages2.setScale(sf::Vector2f(0.15f,0.2f));
   sprite_cages2.setPosition(sf::Vector2f(kWindowWidthF-132.f, 483.f));
 
-
-
   PlayerController player(1000, physics_world_,{200,408});
   PlayerController player2(1000, physics_world_,{kWindowWidthF-200,408});
   Ball ball(physics_world_);
-
-  if (!ImGui::SFML::Init(window)) {
-    std::cerr << "window creation error";
-  }
-
-
-  bool isOpen = true;
-  sf::Clock deltaClock;
-  Status status = Status::NOT_CONNECTED;
-
-
-  ImGui::SetNextWindowSize({kWindowWidthF, 100}, ImGuiCond_Always);
-  ImGui::SetNextWindowPos({0.f, 0.f}, ImGuiCond_Always);
-
-
 
   sf::RectangleShape topWallShape(sf::Vector2f(kWindowWidthF, 10.f));
   topWallShape.setFillColor(sf::Color::Blue);
@@ -146,8 +99,19 @@ wall.CreateWall(
   sf::RectangleShape ballShape(sf::Vector2f(25.f, 25.f));
   ballShape.setFillColor(sf::Color::Black);
 
+  if (!ImGui::SFML::Init(window)) {
+    std::cerr << "window creation error";
+  }
+
+  bool isOpen = true;
+  sf::Clock deltaClock;
+  Status status = Status::NOT_CONNECTED;
+
+  ImGui::SetNextWindowSize({kWindowWidthF, 100}, ImGuiCond_Always);
+  ImGui::SetNextWindowPos({0.f, 0.f}, ImGuiCond_Always);
+
   while (isOpen) {
-    physics_world_.Update(deltaClock.getElapsedTime().asSeconds());
+
 
     // Gestion des événements
     while (const std::optional event = window.pollEvent()) {
@@ -168,9 +132,12 @@ wall.CreateWall(
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) direction2.y = 1.f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) direction2.x = -1.f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) direction2.x = 1.f;
-    if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) std::cout<< sf::Mouse::getPosition(window).x << " : " << sf::Mouse::getPosition(window).y<<"\n";
+    //if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) std::cout<< sf::Mouse::getPosition(window).x << " : " << sf::Mouse::getPosition(window).y<<"\n";
+
+    physics_world_.Update(deltaClock.getElapsedTime().asSeconds());
     player.Move(direction);
     player2.Move(direction2);
+
     //player.Update(deltaClock.getElapsedTime().asSeconds());
 
     // Rendu des joueur

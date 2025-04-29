@@ -32,6 +32,10 @@ class Renderer {
       Draw(sprite);
     }
   }
+
+  void RenderInit(){
+
+  }
 };
 
 

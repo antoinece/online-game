@@ -45,7 +45,41 @@ class Wall {
     return body_handle;
   }
 
+  void WallInit(){
+    // Mur supérieur
+    CreateWall(
+        crackitos_core::math::Vec2f(kWindowWidthF / 2.0f, 100.f),
+        crackitos_core::math::Vec2f(kWindowWidthF, 20.f)
+    );
 
+// Mur inférieur
+    CreateWall(
+        crackitos_core::math::Vec2f(kWindowWidthF / 2.0f, kWindowLengthF),
+        crackitos_core::math::Vec2f(kWindowWidthF, 20.f)
+    );
+// Mur gauche
+    CreateWall(
+        crackitos_core::math::Vec2f(0.f, kWindowLengthF / 2.0f),
+        crackitos_core::math::Vec2f(20.f, kWindowLengthF)
+    );
+// Mur droite
+    CreateWall(
+        crackitos_core::math::Vec2f(kWindowWidthF, kWindowLengthF / 2.0f),
+        crackitos_core::math::Vec2f(20.f, kWindowLengthF)
+    );
+//mur cage gauche
+    CreateWall({130.f, 407.f},{5.f, 151.f});//fond
+    CreateWall({155.f, 332.f},{50.f, 5.f});//haut
+    CreateWall({155.f, 483.f}, {50.f, 5.f});//bas
+//mur cage droite
+    CreateWall({kWindowWidthF-132.f, 407.f}, {5.f, 151.f});//fond
+    CreateWall({kWindowWidthF-157.f, 332.f}, {50.f, 5.f});//haut
+    CreateWall({kWindowWidthF-157.f, 483.f}, {50.f, 5.f});//haut
+
+//  auto leftGoalTriggerHandle = wall.CreateWall({155.f, 407.f},{40.f, 140.f});
+//  auto rightGoalTriggerHandle = wall.CreateWall({kWindowWidthF-157.f, 407.f},{40.f, 140.f});
+
+  }
 
  private:
   crackitos_physics::physics::PhysicsWorld& world_;
