@@ -22,10 +22,8 @@ class Ball {
         false, // Pas un trigger
         body_handle_ // Handle du corps
     );
-
     world_.CreateCollider(body_handle_, playerCollider);
   }
-
 
   crackitos_core::math::Vec2<float> GetPosition() {
     crackitos_physics::physics::Body& body = world_.GetMutableBody(body_handle_);

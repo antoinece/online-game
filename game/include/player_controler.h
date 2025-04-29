@@ -12,7 +12,6 @@ class PlayerController {
   PlayerController(float m, crackitos_physics::physics::PhysicsWorld& world,crackitos_core::math::Vec2f a = {100.f, 200.f})
       : move_speed(m), world_(world) {
 
-
     crackitos_physics::physics::Body playerBody;
     playerBody.set_position(a) ;
     playerBody.set_mass(10.0f);

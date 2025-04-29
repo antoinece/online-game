@@ -29,77 +29,68 @@ class Renderer {
     window_.create(window_size, name.data());
   }
 
-  sf::RenderWindow& Window(){return window_;}
+  sf::RenderWindow &Window() { return window_; }
 
-  void Clear(const sf::Color color = sf::Color::Black){window_.clear(color);}
+  void Clear(const sf::Color color = sf::Color::Black) { window_.clear(color); }
 
-  void Display(){window_.display();}
+  void Display() { window_.display(); }
 
-  void Draw(const sf::Drawable& drawable){window_.draw(drawable);}
+  void Draw(const sf::Drawable &drawable) { window_.draw(drawable); }
 
-  void Render(const std::vector<sf::Sprite>& sprites)
-  {
-    for (auto& sprite:sprites) {
+  void Render(const std::vector<sf::Sprite> &sprites) {
+    for (auto &sprite : sprites) {
       Draw(sprite);
     }
   }
 
-  void RenderInit(){
-    // Chargement de la texture
+  sf::RectangleShape InitShape(sf::Vector2f size, sf::Color color = sf::Color::Magenta, sf::Vector2f pos = {0, 0}) {
+    sf::RectangleShape shape;
+    shape.setSize(size);
+    shape.setFillColor(color);
+    shape.setPosition(pos);
+    return shape;
+  }
 
+  void RenderInit() {
+    // Chargement des texture et sprites
     if (!texture_background.loadFromFile("data/sprites/h2.png")) {
-      std::cerr<<"error loading texture";
+      std::cerr << "error loading texture";
     }
     sf::Sprite sprite_background(texture_background);
     sprite_background.setPosition(sf::Vector2f(0.f, 100.f));
     sprites.push_back(sprite_background);
 
-
     if (!texture_cages.loadFromFile("data/sprites/cages.png")) {
-      std::cerr<<"error loading texture";
+      std::cerr << "error loading texture";
     }
     sf::Sprite sprite_cages(texture_cages);
-    sprite_cages.setScale(sf::Vector2f(0.15f,0.2f));
+    sprite_cages.setScale(sf::Vector2f(0.15f, 0.2f));
     sprite_cages.setPosition(sf::Vector2f(130.f, 332.f));
     sprites.push_back(sprite_cages);
 
     sf::Sprite sprite_cages2(texture_cages);
     sprite_cages2.setRotation(sf::degrees(180));
-    sprite_cages2.setScale(sf::Vector2f(0.15f,0.2f));
-    sprite_cages2.setPosition(sf::Vector2f(kWindowWidthF-132.f, 483.f));
+    sprite_cages2.setScale(sf::Vector2f(0.15f, 0.2f));
+    sprite_cages2.setPosition(sf::Vector2f(kWindowWidthF - 132.f, 483.f));
     sprites.push_back(sprite_cages2);
 
-    topWallShape.setSize(sf::Vector2f(kWindowWidthF, 10.f));
-    topWallShape.setFillColor(sf::Color::Blue);
-    topWallShape.setPosition(sf::Vector2f(0.f, 100.f));
-
-    bottomWallShape.setSize(sf::Vector2f(kWindowWidthF, 10.f));
-    bottomWallShape.setFillColor(sf::Color::Blue);
-    bottomWallShape.setPosition(sf::Vector2f(0.f, kWindowLengthF - 10.f));
-
-    leftWallShape.setSize(sf::Vector2f(10.f, kWindowLengthF));
-    leftWallShape.setFillColor(sf::Color::Blue);
-    leftWallShape.setPosition(sf::Vector2f(0.f, 0.f));
-
-    rightWallShape.setSize(sf::Vector2f(10.f, kWindowLengthF));
-    rightWallShape.setFillColor(sf::Color::Blue);
-    rightWallShape.setPosition(sf::Vector2f(kWindowWidthF - 10.f, 0.f));
-
-    playerShape.setSize(sf::Vector2f(50.f, 50.f));
-    playerShape.setFillColor(sf::Color::Green);
-
-    playerShape2.setSize(sf::Vector2f(50.f, 50.f));
-    playerShape2.setFillColor(sf::Color::Red);
-
-    ballShape.setSize(sf::Vector2f(25.f, 25.f));
-    ballShape.setFillColor(sf::Color::Black);
+    //chargement des rendus des walls
+    topWallShape = InitShape({kWindowWidthF, 10.f}, sf::Color::Blue, {0.f, 100.f});
+    bottomWallShape = InitShape({kWindowWidthF, 10.f}, sf::Color::Blue, {0.f, kWindowLengthF - 10.f});
+    leftWallShape = InitShape({10.f, kWindowLengthF}, sf::Color::Blue, {0.f, 0.f});
+    rightWallShape = InitShape({10.f, kWindowLengthF}, sf::Color::Blue, {kWindowWidthF - 10.f, 0.f});
+    playerShape = InitShape({50.f, 50.f}, sf::Color::Green);
+    playerShape2 = InitShape({50.f, 50.f}, sf::Color::Red);
+    ballShape = InitShape({25.f, 25.f}, sf::Color::Black);
   }
 
-  void RendererUpdate(auto playerPos,auto player2Pos,auto ballPos){
-    playerShape.setPosition(sf::Vector2f (playerPos.x - 25.f, playerPos.y - 25.f));
-    playerShape2.setPosition(sf::Vector2f (player2Pos.x - 25.f, player2Pos.y - 25.f));
-    ballShape.setPosition(sf::Vector2f (ballPos.x - 12.5f, ballPos.y - 12.5f));
+  void RendererUpdate(auto playerPos, auto player2Pos, auto ballPos) {
+    //update pose graphique des player
+    playerShape.setPosition(sf::Vector2f(playerPos.x - 25.f, playerPos.y - 25.f));
+    playerShape2.setPosition(sf::Vector2f(player2Pos.x - 25.f, player2Pos.y - 25.f));
+    ballShape.setPosition(sf::Vector2f(ballPos.x - 12.5f, ballPos.y - 12.5f));
 
+    //draw
     Clear();
     Render(sprites);
     Draw(playerShape);
@@ -109,9 +100,7 @@ class Renderer {
     Draw(leftWallShape);
     Draw(topWallShape);
     Draw(bottomWallShape);
-
   }
 };
-
 
 #endif //ONLINEGAME_GAME_INCLUDE_RENDERER_H_
