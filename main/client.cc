@@ -32,8 +32,7 @@ enum class Status {
 };
 
 int main() {
-  sf::RenderWindow window(sf::VideoMode({kWindowWidth, kWindowLength}), "hockey");
-  window.setFramerateLimit(60);
+
   crackitos_physics::physics::PhysicsWorld physics_world_;
 
   // Initialisation du monde physique
@@ -47,59 +46,13 @@ int main() {
   wall.WallInit();
 
   Renderer renderer("hockey");
+  renderer.RenderInit();
 
-
-  // Chargement de la texture
-  sf::Texture texture_background;
-  if (!texture_background.loadFromFile("data/sprites/h2.png")) {
-    return -1;
-  }
-  sf::Sprite sprite_background(texture_background);
-  sprite_background.setPosition(sf::Vector2f(0.f, 100.f));
-
-  sf::Texture texture_cages;
-  if (!texture_cages.loadFromFile("data/sprites/cages.png")) {
-    return -1;
-  }
-  sf::Sprite sprite_cages(texture_cages);
-  sprite_cages.setScale(sf::Vector2f(0.15f,0.2f));
-  sprite_cages.setPosition(sf::Vector2f(130.f, 332.f));
-
-  sf::Sprite sprite_cages2(texture_cages);
-  sprite_cages2.setRotation(sf::degrees(180));
-  sprite_cages2.setScale(sf::Vector2f(0.15f,0.2f));
-  sprite_cages2.setPosition(sf::Vector2f(kWindowWidthF-132.f, 483.f));
-
-  PlayerController player(1000, physics_world_,{200,408});
-  PlayerController player2(1000, physics_world_,{kWindowWidthF-200,408});
+  PlayerController player(10, physics_world_,{200,408});
+  PlayerController player2(10, physics_world_,{kWindowWidthF-200,408});
   Ball ball(physics_world_);
 
-  sf::RectangleShape topWallShape(sf::Vector2f(kWindowWidthF, 10.f));
-  topWallShape.setFillColor(sf::Color::Blue);
-  topWallShape.setPosition(sf::Vector2f(0.f, 100.f));
-
-  sf::RectangleShape bottomWallShape(sf::Vector2f(kWindowWidthF, 10.f));
-  bottomWallShape.setFillColor(sf::Color::Blue);
-  bottomWallShape.setPosition(sf::Vector2f(0.f, kWindowLengthF - 10.f));
-
-  sf::RectangleShape leftWallShape(sf::Vector2f(10.f, kWindowLengthF));
-  leftWallShape.setFillColor(sf::Color::Blue);
-  leftWallShape.setPosition(sf::Vector2f(0.f, 0.f));
-
-  sf::RectangleShape rightWallShape(sf::Vector2f(10.f, kWindowLengthF));
-  rightWallShape.setFillColor(sf::Color::Blue);
-  rightWallShape.setPosition(sf::Vector2f(kWindowWidthF - 10.f, 0.f));
-
-  sf::RectangleShape playerShape(sf::Vector2f(50.f, 50.f));
-  playerShape.setFillColor(sf::Color::Green);
-
-  sf::RectangleShape playerShape2(sf::Vector2f(50.f, 50.f));
-  playerShape2.setFillColor(sf::Color::Red);
-
-  sf::RectangleShape ballShape(sf::Vector2f(25.f, 25.f));
-  ballShape.setFillColor(sf::Color::Black);
-
-  if (!ImGui::SFML::Init(window)) {
+  if (!ImGui::SFML::Init(renderer.Window())) {
     std::cerr << "window creation error";
   }
 
@@ -112,10 +65,9 @@ int main() {
 
   while (isOpen) {
 
-
     // Gestion des événements
-    while (const std::optional event = window.pollEvent()) {
-      ImGui::SFML::ProcessEvent(window, *event);
+    while (const std::optional event = renderer.Window().pollEvent()) {
+      ImGui::SFML::ProcessEvent(renderer.Window(), *event);
       if (event->is<sf::Event::Closed>()) {
         isOpen = false;
       }
@@ -134,44 +86,26 @@ int main() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) direction2.x = 1.f;
     //if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) std::cout<< sf::Mouse::getPosition(window).x << " : " << sf::Mouse::getPosition(window).y<<"\n";
 
+
+    //update physique
     physics_world_.Update(deltaClock.getElapsedTime().asSeconds());
     player.Move(direction);
     player2.Move(direction2);
 
-    //player.Update(deltaClock.getElapsedTime().asSeconds());
 
-    // Rendu des joueur
-    auto playerPos = player.GetPosition();
-    playerShape.setPosition(sf::Vector2f (playerPos.x - 25.f, playerPos.y - 25.f));
 
-    auto player2Pos = player2.GetPosition();
-    playerShape2.setPosition(sf::Vector2f (player2Pos.x - 25.f, player2Pos.y - 25.f));
 
-    auto ballPos = ball.GetPosition();
-    ballShape.setPosition(sf::Vector2f (ballPos.x - 12.5f, ballPos.y - 12.5f));
-
+    //imgui
     ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_Always);
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
     // Mise à jour de l'UI
-    ImGui::SFML::Update(window, deltaClock.restart());
+    ImGui::SFML::Update(renderer.Window(), deltaClock.restart());
     ImGui::Begin("Simple Chat", nullptr, ImGuiWindowFlags_NoTitleBar);
     ImGui::End();
 
-    // Rendu
-    window.clear();
-    window.draw(sprite_background);
-    window.draw(topWallShape);
-    window.draw(bottomWallShape);
-    window.draw(leftWallShape);
-    window.draw(rightWallShape);
-    window.draw(sprite_cages);
-    window.draw(sprite_cages2);
-    window.draw(playerShape);
-    window.draw(playerShape2);
-    window.draw(ballShape);
-
-    ImGui::SFML::Render(window);
-    window.display();
+    renderer.RendererUpdate(player.GetPosition(),player2.GetPosition(),ball.GetPosition());
+    ImGui::SFML::Render(renderer.Window());
+    renderer.Display();
   }
   ImGui::SFML::Shutdown();
   return 0;
