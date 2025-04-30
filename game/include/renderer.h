@@ -7,7 +7,9 @@
 
 #include <SFML/Graphics.hpp>
 #include "const.h"
-
+/**
+ * gère tout la window les sprites et tout les draw
+ */
 class Renderer {
  private:
   sf::RenderWindow window_;
@@ -23,17 +25,7 @@ class Renderer {
   sf::Texture texture_cages;
   std::vector<sf::Sprite> sprites{};
 
- public:
-  Renderer(std::string_view name) {
-    auto window_size = sf::VideoMode({kWindowWidth, kWindowLength});
-    window_.create(window_size, name.data());
-  }
-
-  sf::RenderWindow &Window() { return window_; }
-
   void Clear(const sf::Color color = sf::Color::Black) { window_.clear(color); }
-
-  void Display() { window_.display(); }
 
   void Draw(const sf::Drawable &drawable) { window_.draw(drawable); }
 
@@ -50,6 +42,16 @@ class Renderer {
     shape.setPosition(pos);
     return shape;
   }
+
+ public:
+  Renderer(std::string_view name) {
+    auto window_size = sf::VideoMode({kWindowWidth, kWindowLength});
+    window_.create(window_size, name.data());
+  }
+
+  sf::RenderWindow &Window() { return window_; }
+
+  void Display() { window_.display(); }
 
   void RenderInit() {
     // Chargement des texture et sprites

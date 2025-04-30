@@ -4,7 +4,9 @@
 #include <SFML/Graphics.hpp>
 #include <body.h>
 #include <physics_world.h>
-
+/**
+ * utilisé pour la physique d'une balle
+ */
 class Ball {
  public:
   Ball(crackitos_physics::physics::PhysicsWorld& world)

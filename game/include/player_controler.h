@@ -6,7 +6,9 @@
 #include <SFML/Graphics.hpp>
 #include <body.h>
 #include <physics_world.h>
-
+/**
+ * utilisé pour la physique du player
+ */
 class PlayerController {
  public:
   PlayerController(float m, crackitos_physics::physics::PhysicsWorld& world,crackitos_core::math::Vec2f a = {100.f, 200.f})

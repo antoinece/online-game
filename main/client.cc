@@ -69,7 +69,7 @@ int main() {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) direction2.x = -1.f;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) direction2.x = 1.f;
     //if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) std::cout<< sf::Mouse::getPosition(window).x << " : " << sf::Mouse::getPosition(window).y<<"\n";
-
+///TODO input manager
     //update physique
     physics_world_.Update(deltaClock.getElapsedTime().asSeconds());
     player.Move(direction);

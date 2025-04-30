@@ -11,6 +11,9 @@
 #include "shape.h"
 #include <SFML/Graphics.hpp>
 
+/**
+ * crée les wall physique du bord de map et des cages
+ */
 class Wall {
  public:
   explicit Wall(crackitos_physics::physics::PhysicsWorld &world)
@@ -50,7 +53,6 @@ class Wall {
         crackitos_core::math::Vec2f(kWindowWidthF / 2.0f, 100.f),
         crackitos_core::math::Vec2f(kWindowWidthF, 20.f)
     );
-
 // Mur inférieur
     CreateWall(
         crackitos_core::math::Vec2f(kWindowWidthF / 2.0f, kWindowLengthF),
