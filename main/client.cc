@@ -11,6 +11,7 @@
 #include "wall.h"
 #include "ball.h"
 #include "renderer.h"
+#include <LoadBalancing-cpp/inc/Client.h>
 
 enum class Status {
   NOT_CONNECTED,
@@ -18,6 +19,7 @@ enum class Status {
 };
 
 int main() {
+
   bool isOpen = true;
   sf::Clock deltaClock;
   Status status = Status::NOT_CONNECTED;
@@ -71,7 +73,7 @@ int main() {
     //if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) std::cout<< sf::Mouse::getPosition(window).x << " : " << sf::Mouse::getPosition(window).y<<"\n";
 ///TODO input manager
     //update physique
-    physics_world_.Update(deltaClock.getElapsedTime().asSeconds());
+    physics_world_.Update();
     player.Move(direction);
     player2.Move(direction2);
 
