@@ -14,21 +14,15 @@
 #include <LoadBalancing-cpp/inc/Client.h>
 #include "my_client.h"
 
-enum class Status {
-  NOT_CONNECTED,
-  CONNECTED
-};
 
 int main() {
 
   bool isOpen = true;
   sf::Clock deltaClock;
-  Status status = Status::NOT_CONNECTED;
 
   MyClient client;
   ExitGames::LoadBalancing::ClientConstructOptions options;
   NetworkManager::Begin(&client, options);
-
 
   // Initialisation du monde physique
   crackitos_physics::physics::PhysicsWorld physics_world_;
@@ -59,9 +53,14 @@ int main() {
   crackitos_core::timer::Timer timer;
   timer.SetFixedDeltaTime(1.0f / 60.0f);
 
+
   while (isOpen) {
+    int remoteNr = client.getRemotePlayerNr();
+    int localNr = client.getLocalPlayerNr();
 
+    if (remoteNr == 1){
 
+    }
 
     NetworkManager::Tick();
 
@@ -76,15 +75,12 @@ int main() {
     // Gestion des inputs
     float directionX = 0;
     float directionY = 0;
-    sf::Vector2f direction2(0, 0);
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) directionY = -1.f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) directionY = 1.f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) directionX = -1.f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) directionX = 1.f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up)) direction2.y = -1.f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down)) direction2.y = 1.f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left)) direction2.x = -1.f;
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right)) direction2.x = 1.f;
+    if (renderer.Window().hasFocus()){
+      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)) directionY = -1.f;
+      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)) directionY = 1.f;
+      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) directionX = -1.f;
+      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) directionX = 1.f;
+    }
     //if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) std::cout<< sf::Mouse::getPosition(window).x << " : " << sf::Mouse::getPosition(window).y<<"\n";
     ///TODO input manager
     //update physique
@@ -96,11 +92,16 @@ int main() {
       physics_world_.Update();
     }
 
-    sf::Vector2f dir = client.direction();
+
+    if (localNr == 1) {
+      player.Move({directionX, directionY});         // toi = player
+      player2.Move(client.direction2());             // autre = player2
+    } else {
+      player.Move(client.direction1());              // autre = player
+      player2.Move({directionX, directionY});        // toi = player2
+    }
 
 
-    player.Move({directionX,directionY});
-    player2.Move(dir);
 
     //imgui
     ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_Always);
@@ -109,19 +110,14 @@ int main() {
     ImGui::Begin("Simple Chat", nullptr, ImGuiWindowFlags_NoTitleBar);
     ImGui::End();
 
+    ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Text("Local Player #: %d", localNr);
+    ImGui::Text("Remote Player #: %d", remoteNr);
+    ImGui::End();
 
 
 
 
-    static char message[256] = "";
-    ImGui::InputText("Message", message, IM_ARRAYSIZE(message));
-
-    if (ImGui::Button("Send"))
-    {
-      std::cout << "[Photon] Trying to send message: " << message << "\n";
-      bool success = NetworkManager::GetLoadBalancingClient().opRaiseEvent(true, ExitGames::Common::JString(message), 1);
-      std::cout << "[Photon] Message sent status: " << (success ? "Success" : "Failure") << "\n";
-    }
     char buf[64];
     std::snprintf(buf, sizeof(buf), "%f,%f", directionX, directionY);
     ExitGames::Common::JString jsDir(buf);
@@ -137,7 +133,7 @@ int main() {
 
 
 
-    renderer.RendererUpdate(player.GetPosition(), player2.GetPosition(), ball.GetPosition());
+    renderer.RendererUpdate(player.GetPosition(), player2.GetPosition(), ball.GetPosition(),remoteNr);
     ImGui::SFML::Render(renderer.Window());
     renderer.Display();
   }

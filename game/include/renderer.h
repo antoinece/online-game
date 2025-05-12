@@ -86,10 +86,15 @@ class Renderer {
     ballShape = InitShape({25.f, 25.f}, sf::Color::Black);
   }
 
-  void RendererUpdate(auto playerPos, auto player2Pos, auto ballPos) {
+  void RendererUpdate(auto playerPos, auto player2Pos, auto ballPos,int player) {
     //update pose graphique des player
-    playerShape.setPosition(sf::Vector2f(playerPos.x - 25.f, playerPos.y - 25.f));
-    playerShape2.setPosition(sf::Vector2f(player2Pos.x - 25.f, player2Pos.y - 25.f));
+    if (player == 1) {
+      playerShape.setPosition(sf::Vector2f(playerPos.x - 25.f, playerPos.y - 25.f));
+      playerShape2.setPosition(sf::Vector2f(player2Pos.x - 25.f, player2Pos.y - 25.f));
+    }else if (player == 2) {
+      playerShape2.setPosition(sf::Vector2f(playerPos.x - 25.f, playerPos.y - 25.f));
+      playerShape.setPosition(sf::Vector2f(player2Pos.x - 25.f, player2Pos.y - 25.f));
+    }
     ballShape.setPosition(sf::Vector2f(ballPos.x - 12.5f, ballPos.y - 12.5f));
 
     //draw

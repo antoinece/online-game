@@ -1,6 +1,3 @@
-//
-// Created by ROG on 10.05.2025.
-//
 
 #ifndef ONLINEGAME_GAME_INCLUDE_MY_CLIENT_H_
 #define ONLINEGAME_GAME_INCLUDE_MY_CLIENT_H_
@@ -14,8 +11,9 @@
 
 class MyClient : public ClientInterface {
  private:
-  sf::Vector2f direction_{};
-
+  sf::Vector2f direction_1{};
+  sf::Vector2f direction_2{};
+  int local_player_nr_ = -1;
 
  public:
   // ✅ Méthodes obligatoires de Listener
@@ -64,7 +62,7 @@ class MyClient : public ClientInterface {
     {
        auto message = ExitGames::Common::ValueObject<ExitGames::Common::JString>(eventContent).getDataCopy();
        //std::cout << "[Photon] Message from player " << playerNr << ": " << message.UTF8Representation().cstr() << std::endl;
-      DecryptMess(message);
+      DecryptMess(message,playerNr);
     }
   }
 
@@ -88,7 +86,7 @@ class MyClient : public ClientInterface {
     }
   }
 
-  void DecryptMess(const ExitGames::Common::JString& message){
+  void DecryptMess(const ExitGames::Common::JString& message,int playerNr){
     std::string dirStr = message.UTF8Representation().cstr();
     size_t commaPos = dirStr.find(',');
     float directionX = 0.0f;
@@ -101,10 +99,49 @@ class MyClient : public ClientInterface {
       directionY = std::stof(yStr);
     }
     const auto direction = sf::Vector2f {directionX,directionY};
-    direction_ = direction;
+    if (playerNr==1) {
+      direction_1 = direction;
+    }
+
+    if (playerNr==2) {
+      direction_2 = direction;
+    }
   }
 
-  sf::Vector2f& direction() {return direction_;}
+  std::vector<int> getAllPlayerNrs() const {
+    std::vector<int> result;
+    // Accède à la room jointe
+    const auto& room = NetworkManager::GetLoadBalancingClient()
+        .getCurrentlyJoinedRoom();
+    // Photon renvoie un JVector de pointeurs Player*
+    ExitGames::Common::JVector<ExitGames::LoadBalancing::Player*> players = room.getPlayers();
+    // Itère dessus
+    for (unsigned int i = 0; i < players.getSize(); ++i) {
+      result.push_back(players[i]->getNumber());
+    }
+    return result;
+  }
+
+  int getRemotePlayerNr() const {
+    auto all   = getAllPlayerNrs();
+    int  local = getLocalPlayerNr();
+    for (int n : all) {
+      if (n != local)
+        return n;
+    }
+    return 0;
+  }
+
+  int getLocalPlayerNr() const {
+    return NetworkManager::GetLoadBalancingClient()
+        .getLocalPlayer()
+        .getNumber();
+  }
+
+
+
+  sf::Vector2f& direction1() {return direction_1;}
+  sf::Vector2f& direction2() {return direction_2;}
 };
 
 #endif //ONLINEGAME_GAME_INCLUDE_MY_CLIENT_H_
