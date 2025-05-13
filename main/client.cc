@@ -57,11 +57,6 @@ int main() {
   while (isOpen) {
     int remoteNr = client.getRemotePlayerNr();
     int localNr = client.getLocalPlayerNr();
-
-    if (remoteNr == 1){
-
-    }
-
     NetworkManager::Tick();
 
     // Gestion des événements
@@ -81,11 +76,8 @@ int main() {
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) directionX = -1.f;
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) directionX = 1.f;
     }
-    //if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) std::cout<< sf::Mouse::getPosition(window).x << " : " << sf::Mouse::getPosition(window).y<<"\n";
-    ///TODO input manager
-    //update physique
-    timer.Tick();
 
+    timer.Tick();
     //--------------FIXED UPDATE----------------
     while (timer.FixedDeltaTimeStep())
     {
@@ -95,12 +87,12 @@ int main() {
 
     if (localNr == 1) {
       player.Move({directionX, directionY});         // toi = player
-      player2.Move(client.direction2());             // autre = player2
+      player2.SetPos(client.direction2());             // autre = player2
     } else {
-      player.Move(client.direction1());              // autre = player
-      player2.Move({directionX, directionY});        // toi = player2
+      player.SetPos(client.direction1());              // autre = player
+      player2.Move({directionX, directionY});
+      ball.SetPos(client.getBallPos()); // méthode getter à faire dans MyClient
     }
-
 
 
     //imgui
@@ -109,30 +101,31 @@ int main() {
     ImGui::SFML::Update(renderer.Window(), deltaClock.restart());
     ImGui::Begin("Simple Chat", nullptr, ImGuiWindowFlags_NoTitleBar);
     ImGui::End();
-
     ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Text("Local Player #: %d", localNr);
-    ImGui::Text("Remote Player #: %d", remoteNr);
+    ImGui::Text("Local Player : %d", localNr);
+    ImGui::Text("Remote Player : %d", remoteNr);
     ImGui::End();
 
-
-
-
+    //messages
     char buf[64];
-    std::snprintf(buf, sizeof(buf), "%f,%f", directionX, directionY);
+    if (localNr == 1){
+      std::snprintf(buf, sizeof(buf), "%f,%f", player.GetPosition().x, player.GetPosition().y);
+    }else if (localNr == 2){
+      std::snprintf(buf, sizeof(buf), "%f,%f", player2.GetPosition().x, player2.GetPosition().y);
+    }
     ExitGames::Common::JString jsDir(buf);
+    NetworkManager::GetLoadBalancingClient().opRaiseEvent(false, jsDir, 2);
+    //std::cout << "Envoi de la position de la balle: " << ball.GetPosition().x << ", " << ball.GetPosition().y << std::endl;
+    if (localNr == 1){
+      auto ballPos = ball.GetPosition();
+      char ballBuf[64];
+      //std::cout << "Envoi de la position de la balle: " << ball.GetPosition().x << ", " << ball.GetPosition().y << std::endl;
+      std::snprintf(ballBuf, sizeof(ballBuf), "ball:%f,%f", ballPos.x, ballPos.y);
+      ExitGames::Common::JString jsBallPos(ballBuf);
+      NetworkManager::GetLoadBalancingClient().opRaiseEvent(false, jsBallPos, 3);
+    }
 
-    NetworkManager::GetLoadBalancingClient()
-        .opRaiseEvent(false, jsDir, 2);
-
-
-
-
-
-
-
-
-
+    //render
     renderer.RendererUpdate(player.GetPosition(), player2.GetPosition(), ball.GetPosition(),remoteNr);
     ImGui::SFML::Render(renderer.Window());
     renderer.Display();

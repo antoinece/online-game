@@ -8,13 +8,14 @@
 #include <imgui-SFML.h>
 #include "network.h"
 #include "client_interface.h"
+#include "const.h"
 
 class MyClient : public ClientInterface {
  private:
-  sf::Vector2f direction_1{};
-  sf::Vector2f direction_2{};
+  sf::Vector2f direction_1{200, 408};
+  sf::Vector2f direction_2{kWindowWidthF - 200, 408};
   int local_player_nr_ = -1;
-
+  sf::Vector2f ballPos_{719.f, 408.f};
  public:
   // ✅ Méthodes obligatoires de Listener
   void debugReturn(int /*debugLevel*/, const ExitGames::Common::JString & /*string*/) override {}
@@ -64,6 +65,18 @@ class MyClient : public ClientInterface {
        //std::cout << "[Photon] Message from player " << playerNr << ": " << message.UTF8Representation().cstr() << std::endl;
       DecryptMess(message,playerNr);
     }
+    if (eventCode == 3) {
+      //std::cout << "[Photon] Event 3 reçu!" << std::endl;
+      ExitGames::Common::JString message = ExitGames::Common::ValueObject<ExitGames::Common::JString>(eventContent).getDataCopy();
+      std::string s = message.UTF8Representation().cstr();
+      //std::cout << s << std::endl;
+      if (s.starts_with("ball:")) {
+        float bx = 0.f, by = 0.f;
+        sscanf_s(s.c_str(), "ball:%f,%f", &bx, &by);
+        ballPos_ = {bx, by};
+        //std::cout<< ballPos_.x << " : " << ballPos_.y <<"\n";
+      }
+    }
   }
 
   void roomListUpdate(const ExitGames::Common::JVector<ExitGames::LoadBalancing::Room> & /*roomList*/) {}
@@ -102,7 +115,6 @@ class MyClient : public ClientInterface {
     if (playerNr==1) {
       direction_1 = direction;
     }
-
     if (playerNr==2) {
       direction_2 = direction;
     }
@@ -139,7 +151,7 @@ class MyClient : public ClientInterface {
   }
 
 
-
+  sf::Vector2f getBallPos() const { return ballPos_; }
   sf::Vector2f& direction1() {return direction_1;}
   sf::Vector2f& direction2() {return direction_2;}
 };

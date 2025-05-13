@@ -32,6 +32,12 @@ class Ball {
     return body.position();
   }
 
+  void SetPos(sf::Vector2f pos){
+    crackitos_physics::physics::Body& body = world_.GetMutableBody(body_handle_);
+    body.set_position({pos.x,pos.y});
+  }
+
+
  private:
   float move_speed = 3;
   crackitos_physics::physics::PhysicsWorld& world_;  // Référence vers le monde physique
