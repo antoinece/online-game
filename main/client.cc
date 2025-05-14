@@ -16,7 +16,8 @@
 
 
 int main() {
-
+  bool desyncButGoodPhysic = false;
+  int frameCount = 0;
   bool isOpen = true;
   sf::Clock deltaClock;
 
@@ -55,6 +56,11 @@ int main() {
 
 
   while (isOpen) {
+    if (frameCount%20==0){
+      desyncButGoodPhysic = false;
+    } else{
+      desyncButGoodPhysic = true;
+    }
     int remoteNr = client.getRemotePlayerNr();
     int localNr = client.getLocalPlayerNr();
     NetworkManager::Tick();
@@ -84,17 +90,6 @@ int main() {
       physics_world_.Update();
     }
 
-
-    if (localNr == 1) {
-      player.Move({directionX, directionY});         // toi = player
-      player2.SetPos(client.direction2());             // autre = player2
-    } else {
-      player.SetPos(client.direction1());              // autre = player
-      player2.Move({directionX, directionY});
-      ball.SetPos(client.getBallPos()); // méthode getter à faire dans MyClient
-    }
-
-
     //imgui
     ImGui::SetNextWindowSize(ImVec2(400, 100), ImGuiCond_Always);
     ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_Always);
@@ -104,26 +99,55 @@ int main() {
     ImGui::Begin("Debug", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Text("Local Player : %d", localNr);
     ImGui::Text("Remote Player : %d", remoteNr);
+    ImGui::Text("frame : %d", frameCount);
     ImGui::End();
 
-    //messages
-    char buf[64];
-    if (localNr == 1){
-      std::snprintf(buf, sizeof(buf), "%f,%f", player.GetPosition().x, player.GetPosition().y);
-    }else if (localNr == 2){
-      std::snprintf(buf, sizeof(buf), "%f,%f", player2.GetPosition().x, player2.GetPosition().y);
+    //multiplayer
+    if (!desyncButGoodPhysic) {
+      char buf[64];
+      if (localNr == 1) {
+        std::snprintf(buf, sizeof(buf), "%f,%f", player.GetPosition().x, player.GetPosition().y);
+      } else if (localNr == 2) {
+        std::snprintf(buf, sizeof(buf), "%f,%f", player2.GetPosition().x, player2.GetPosition().y);
+      }
+      ExitGames::Common::JString jsDir(buf);
+      NetworkManager::GetLoadBalancingClient().opRaiseEvent(false, jsDir, 4);
+      if (localNr == 1) {
+        auto ballPos = ball.GetPosition();
+        auto ballVel = ball.GetVelocity();
+        char ballBuf[64];
+        std::snprintf(ballBuf, sizeof(ballBuf), "ball:%f,%f", ballPos.x, ballPos.y);
+        ExitGames::Common::JString jsBallPos(ballBuf);
+        NetworkManager::GetLoadBalancingClient().opRaiseEvent(false, jsBallPos, 3);
+//        char ballBuf2[64];
+//        std::snprintf(ballBuf2, sizeof(ballBuf2), "ball:%f,%f", ballPos.x, ballPos.y);
+//        ExitGames::Common::JString jsBallVel(ballBuf2);
+//        NetworkManager::GetLoadBalancingClient().opRaiseEvent(false, jsBallPos, 5);
+      }
+      if (localNr == 1) {
+        player.Move({directionX, directionY});
+        player2.SetPos(client.pos2());
+      } else {
+        player.SetPos(client.pos1());
+        player2.Move({directionX, directionY});
+        ball.SetPos(client.getBallPos());
+        //ball.SetVelocity(client.getBallVel());
+      }
+      frameCount=0;
+    }else{
+      char buf[64];
+      std::snprintf(buf, sizeof(buf), "%f,%f", directionX, directionY);
+      ExitGames::Common::JString jsDir(buf);
+      NetworkManager::GetLoadBalancingClient().opRaiseEvent(false, jsDir, 2);
+      if (localNr == 1) {
+        player.Move({directionX, directionY});
+        player2.Move(client.direction2());
+      } else {
+        player.Move(client.direction1());
+        player2.Move({directionX, directionY});
+      }
     }
-    ExitGames::Common::JString jsDir(buf);
-    NetworkManager::GetLoadBalancingClient().opRaiseEvent(false, jsDir, 2);
-    //std::cout << "Envoi de la position de la balle: " << ball.GetPosition().x << ", " << ball.GetPosition().y << std::endl;
-    if (localNr == 1){
-      auto ballPos = ball.GetPosition();
-      char ballBuf[64];
-      //std::cout << "Envoi de la position de la balle: " << ball.GetPosition().x << ", " << ball.GetPosition().y << std::endl;
-      std::snprintf(ballBuf, sizeof(ballBuf), "ball:%f,%f", ballPos.x, ballPos.y);
-      ExitGames::Common::JString jsBallPos(ballBuf);
-      NetworkManager::GetLoadBalancingClient().opRaiseEvent(false, jsBallPos, 3);
-    }
+    frameCount++;
 
     //render
     renderer.RendererUpdate(player.GetPosition(), player2.GetPosition(), ball.GetPosition(),remoteNr);

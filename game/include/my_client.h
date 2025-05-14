@@ -12,10 +12,12 @@
 
 class MyClient : public ClientInterface {
  private:
-  sf::Vector2f direction_1{200, 408};
-  sf::Vector2f direction_2{kWindowWidthF - 200, 408};
-  int local_player_nr_ = -1;
+  sf::Vector2f pos_1{200, 408};
+  sf::Vector2f direction_1{};
+  sf::Vector2f pos_2{kWindowWidthF - 200, 408};
+  sf::Vector2f direction_2{};
   sf::Vector2f ballPos_{719.f, 408.f};
+  sf::Vector2f ballVel_{};
  public:
   // ✅ Méthodes obligatoires de Listener
   void debugReturn(int /*debugLevel*/, const ExitGames::Common::JString & /*string*/) override {}
@@ -53,28 +55,36 @@ class MyClient : public ClientInterface {
   }
 
   void customEventAction(int playerNr, nByte eventCode, const ExitGames::Common::Object &eventContent) override {
-    //std::cout << "[Photon] customEventAction triggered!\n";
     if(eventCode == 1)
     {
       auto message = ExitGames::Common::ValueObject<ExitGames::Common::JString>(eventContent).getDataCopy();
-      //std::cout << "[Photon] Message from player " << playerNr << ": " << message.UTF8Representation().cstr() << std::endl;
     }
     if (eventCode == 2)
     {
        auto message = ExitGames::Common::ValueObject<ExitGames::Common::JString>(eventContent).getDataCopy();
-       //std::cout << "[Photon] Message from player " << playerNr << ": " << message.UTF8Representation().cstr() << std::endl;
-      DecryptMess(message,playerNr);
+      DecryptMess(message,playerNr,direction_1,direction_2);
     }
     if (eventCode == 3) {
-      //std::cout << "[Photon] Event 3 reçu!" << std::endl;
       ExitGames::Common::JString message = ExitGames::Common::ValueObject<ExitGames::Common::JString>(eventContent).getDataCopy();
       std::string s = message.UTF8Representation().cstr();
-      //std::cout << s << std::endl;
       if (s.starts_with("ball:")) {
         float bx = 0.f, by = 0.f;
         sscanf_s(s.c_str(), "ball:%f,%f", &bx, &by);
         ballPos_ = {bx, by};
-        //std::cout<< ballPos_.x << " : " << ballPos_.y <<"\n";
+      }
+    }
+    if (eventCode == 4)
+    {
+      auto message = ExitGames::Common::ValueObject<ExitGames::Common::JString>(eventContent).getDataCopy();
+      DecryptMess(message,playerNr,pos_1,pos_2);
+    }
+    if (eventCode == 5) {
+      ExitGames::Common::JString message = ExitGames::Common::ValueObject<ExitGames::Common::JString>(eventContent).getDataCopy();
+      std::string s = message.UTF8Representation().cstr();
+      if (s.starts_with("ball:")) {
+        float bx = 0.f, by = 0.f;
+        sscanf_s(s.c_str(), "ball:%f,%f", &bx, &by);
+        ballVel_ = {bx, by};
       }
     }
   }
@@ -99,7 +109,7 @@ class MyClient : public ClientInterface {
     }
   }
 
-  void DecryptMess(const ExitGames::Common::JString& message,int playerNr){
+  void DecryptMess(const ExitGames::Common::JString& message,int playerNr,sf::Vector2f & vec1,sf::Vector2f & vec2){
     std::string dirStr = message.UTF8Representation().cstr();
     size_t commaPos = dirStr.find(',');
     float directionX = 0.0f;
@@ -113,10 +123,10 @@ class MyClient : public ClientInterface {
     }
     const auto direction = sf::Vector2f {directionX,directionY};
     if (playerNr==1) {
-      direction_1 = direction;
+      vec1 = direction;
     }
     if (playerNr==2) {
-      direction_2 = direction;
+      vec2 = direction;
     }
   }
 
@@ -152,6 +162,9 @@ class MyClient : public ClientInterface {
 
 
   sf::Vector2f getBallPos() const { return ballPos_; }
+  sf::Vector2f getBallVel() const { return ballVel_; }
+  sf::Vector2f& pos1() {return pos_1;}
+  sf::Vector2f& pos2() {return pos_2;}
   sf::Vector2f& direction1() {return direction_1;}
   sf::Vector2f& direction2() {return direction_2;}
 };

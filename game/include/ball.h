@@ -32,11 +32,20 @@ class Ball {
     return body.position();
   }
 
+  crackitos_core::math::Vec2<float> GetVelocity() {
+    crackitos_physics::physics::Body& body = world_.GetMutableBody(body_handle_);
+    return body.velocity();
+  }
+
   void SetPos(sf::Vector2f pos){
     crackitos_physics::physics::Body& body = world_.GetMutableBody(body_handle_);
     body.set_position({pos.x,pos.y});
   }
 
+  void SetVelocity(sf::Vector2f vel){
+    crackitos_physics::physics::Body& body = world_.GetMutableBody(body_handle_);
+    body.set_velocity({vel.x,vel.y});
+  }
 
  private:
   float move_speed = 3;
